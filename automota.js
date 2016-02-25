@@ -43,16 +43,49 @@ Automota = Object.assign( automotaBase, {
 		var xPos = xBound / xLength * this.xIndex;
 		var yPos = yBound / yLength * this.yIndex;
 		ctx.save();
-		/*if(this.currentState >=  1 ) {
+		/*if(this.currentState ==  1 ) {
 			//ctx.fillStyle = "rgba(" + (10*(this.currentState - 1)) + ",0,0,1.0)";
-			ctx.fillStyle = "green";
-			ctx.fillRect(xPos, yPos, xBound / xLength, yBound / yLength);
+			if(this.yIndex < Math.round(yLength / 2)) {
+				ctx.fillStyle = "green";
+				ctx.strokeStyle = "green";
+				ctx.beginPath();
+				ctx.moveTo(Draw.canvas.width/2,0);
+				ctx.quadraticCurveTo(xPos, Draw.canvas.height / 4, xPos, yPos);
+				ctx.stroke();
+			} else {
+				ctx.fillStyle = "green";
+				ctx.strokeStyle = "blue";
+				ctx.beginPath();
+				ctx.moveTo(Draw.canvas.width/2,Draw.canvas.height);
+				ctx.lineTo(xPos, yPos);
+				ctx.stroke();
+			}
+			//ctx.fillRect(xPos, yPos, xBound / xLength, yBound / yLength);
 		} else*/ if(this.currentState >= 1) {
+				ctx.strokeStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
+			
+			if(this.yIndex < Math.round(yLength / 2)) {
+				ctx.fillStyle = "green";
+				ctx.beginPath();
+				ctx.moveTo(Draw.canvas.width/2,0);
+				ctx.quadraticCurveTo(xPos , Draw.canvas.height / 4 / this.currentState, xPos, yPos);
+				ctx.stroke();
+			} else {
+				ctx.fillStyle = "green";
+				ctx.beginPath();
+				ctx.moveTo(Draw.canvas.width/2,Draw.canvas.height);
+				ctx.lineTo(xPos, yPos);
+				ctx.stroke();
+			}
 			ctx.fillStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
 			ctx.beginPath();
 			ctx.arc(xPos, yPos, 2 * Math.min(this.currentState,10), 0, Math.PI * 2);
 			ctx.fill();
 			ctx.closePath();
+			if(this.currentState > 10) {
+				this.nextState = 0;
+				this.currentState = 0;
+			}	
 		}
 		ctx.restore();
 	}

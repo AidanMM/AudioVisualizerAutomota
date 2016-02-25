@@ -4,6 +4,7 @@
 	body {
          background: #eeeeee;
          font-family: tahoma, verdana, sans serif;
+	 margin: 0 0 0 0;
 	}
 
      	canvas {
@@ -114,8 +115,8 @@
 		var delay = 25;
 		setTimeout(function(){
 			requestAnimationFrame(update);	
-			Draw.ctx.clearRect(0,0,Draw.canvas.width, Draw.canvas.height);
-			Draw.ctx.fillStyle = 'black';
+			//Draw.ctx.clearRect(0,0,Draw.canvas.width, Draw.canvas.height);
+			Draw.ctx.fillStyle = "rgba(0,0,0,.1)"; 
 			Draw.ctx.fillRect(0,0,Draw.canvas.width ,Draw.canvas.height );
 			colony.draw(Draw.ctx);
 			colony.update();
@@ -133,7 +134,7 @@
 			var topSpacing = 50;
 			
 			// loop through the data and draw!
-			for(var i=0; i<NUM_SAMPLES / 2; i++) { 
+			for(var i=0; i<NUM_SAMPLES / 4; i++) { 
 				Draw.ctx.fillStyle = 'rgba(0,255,0,0.6)'; 
 				
 				// the higher the amplitude of the sample (bin) the taller the bar
@@ -145,6 +146,21 @@
 					//colony.automota[i][1].nextState = Math.round(data[i] / 25);		
 					//colony.automota[i][colony.ySize - 1 ].nextState = Math.round(data[i] / 25);		
 				}
+			}
+			var extraCount = 0;
+			for(var i=NUM_SAMPLES / 2 - 1; i > NUM_SAMPLES / 4; i--) { 
+				Draw.ctx.fillStyle = 'rgba(0,255,0,0.6)'; 
+				
+				// the higher the amplitude of the sample (bin) the taller the bar
+				// remember we have to draw our bars left-to-right and top-down
+				//Draw.ctx.fillRect(i * (barWidth + barSpacing),topSpacing + 256-data[i],barWidth,barHeight); 
+				//Draw.ctx.fillRect(Draw.canvas.width - i * (barWidth + barSpacing), topSpacing + 256 - data[i] - 20, barWidth, barHeight);
+				if(data[extraCount] > 100) {
+					colony.automota[i][Math.round(colony.ySize / 2)].nextState = Math.round(data[extraCount] / 25);		
+					//colony.automota[i][1].nextState = Math.round(data[extraCount] / 25);		
+					//colony.automota[i][colony.ySize - 1 ].nextState = Math.round(data[extraCount] / 25);		
+				}
+				extraCount++;
 			}
 			manipulatePixels();
 		}, delay);
