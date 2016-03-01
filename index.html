@@ -225,6 +225,7 @@
 				}
 			convolver.buffer = noiseBuffer;
 			
+			//http://www.html5rocks.com/en/tutorials/webaudio/intro/
 			filter = audioCtx.createBiquadFilter();
 			filter.type='lowpass';
 			filter.frequency.value=filterFrequency;
@@ -347,23 +348,7 @@
 			break;
 			}
 		};
-		/*
-		document.querySelector("#reverbCheck").onchange = function(e)
-		{
-			reverbAudio=e.target.checked;
-			if(reverbAudio)
-			{
-				analyserNode.disconnect();
-				analyserNode.connect(convolver);
-				convolver.connect(audioCtx.destination);
-			}
-			else
-			{
-				convolver.disconnect();
-				analyserNode.connect(audioCtx.destination);
-			}
 
-		};*/
 		
 		document.querySelector("#reverbSlider").oninput = function(e)
 		{
