@@ -77,16 +77,6 @@
 			<input type="checkbox" id="filterCheck">
 		</span>
 		<br/>	
-		<!--
-		<span>
-			<label for="reverbCheck">Reverb</label>
-			<input type="checkbox" id="reverbCheck"   >
-		</span>
-		
-		<span>
-			<label for="audioFilterCheck">Reverb</label>
-			<input type="checkbox" id="audioFilterCheck"   >
-		</span>-->
 		Audio Effect:
 		<select id ="audioSelect">
 			<option value ="none">No Audio Effect</option>
@@ -117,29 +107,9 @@
 			<input id="audioFilterSlider" type ="range" min ="100" max="1000" step ="020" value ="440"/>			
 		</div>
 		
-		
 		<p id="status">???</p>
 	</div>
 	
-	<!--
-	<fieldset>
-<legend>HTML File Upload</legend>
-
-<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-
-
-<div>
-	<label for="fileselect">Files to upload:</label>
-	<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
-	<div id="filedrag">or drop files here</div>
-</div>
-
-<div id="submitbutton">
-	<button type="submit">Upload Files</button>
-</div>
-
-</fieldset>
--->
   </body>
   
   <script src='setup.js'></script>
@@ -151,32 +121,14 @@
    	window.onload = init;
     	var colony;
 	var NUM_SAMPLES = 256;
-	var SOUND_6 = 'media/XP_Sounds.mp3';
-	var SOUND_4 = 'media/New Adventure Theme.mp3';
-	var SOUND_2 = 'media/Peanuts Theme.mp3';
-	var SOUND_3 = 'media/The Picard Song.mp3';
-	var SOUND_5 = 'media/Skrillex.mp3';
-	var SOUND_1 = 'media/17Years.mp3';
-	var SOUND_7 = 'media/OneWingedAngel.mp3';
-	var SOUND_8 = 'media/Lamprey.mp3';
-	var audioElement;
-	var analyserNode;
-	var lineStyle = "quadratic";
-	var lineWidth = 1;
-	var radiusScale = 1;
-	var drawLines = true;
-	var drawCircles = true;
-	var pixelFilter = false;
-	var waveFormData = false;
-	/*
-	var reverbAudio = false;
-	var filterAudio = false;
-	*/
+	var SOUND_6 = 'media/XP_Sounds.mp3', SOUND_4 = 'media/New Adventure Theme.mp3', SOUND_2 = 'media/Peanuts Theme.mp3';
+	var SOUND_3 = 'media/The Picard Song.mp3', SOUND_5 = 'media/Skrillex.mp3', SOUND_1 = 'media/17Years.mp3';
+	var SOUND_7 = 'media/OneWingedAngel.mp3', SOUND_8 = 'media/Lamprey.mp3';
+	var audioElement,  analyserNode;
+	var lineStyle = "quadratic", lineWidth = 1, radiusScale = 1;
+	var drawLines = true, drawCircles = true, pixelFilter = false, waveFormData = false;
 	var audioEffect = "none";
-	var filter;
-	var filterFrequency = 440;
-	
-	var reverbScale = .3;
+	var filter, filterFrequency = 440, reverbScale = .3;
 	var audioCtx, analyserNode, sourceNode, convolver;
 	function init() {
 		// Initialize audio systems
@@ -190,8 +142,6 @@
 	}
 	
 	function createWebAudioContextWithAnalyserNode(audioElement) {
-		
-
 		// create new AudioContext
 		// The || is because WebAudio has not been standardized across browsers yet
 		// http://webaudio.github.io/web-audio-api/#the-audiocontext-interface
@@ -199,15 +149,6 @@
 			
 		// create an analyser node
 		analyserNode = audioCtx.createAnalyser();
-			
-		/*
-		We will request NUM_SAMPLES number of samples or "bins" spaced equally 
-		across the sound spectrum.
-			
-		If NUM_SAMPLES (fftSize) is 256, then the first bin is 0 Hz, the second is 172 Hz, 
-		the third is 344Hz. Each bin contains a number between 0-255 representing 
-		the amplitude of that frequency.
-		*/ 
 			
 		// fft stands for Fast Fourier Transform
 		analyserNode.fftSize = NUM_SAMPLES;
@@ -217,25 +158,23 @@
 		sourceNode.connect(analyserNode);
 
 		
-			//impulse responses from http://noisehack.com/custom-audio-effects-javascript-web-audio-api/
-			convolver = audioCtx.createConvolver();
-			var noiseBuffer =audioCtx.createBuffer(2, reverbScale * audioCtx.sampleRate, audioCtx.sampleRate);
-			var left = noiseBuffer.getChannelData(0);
-			var right = noiseBuffer.getChannelData(1);
-
-				for (var i = 0; i < noiseBuffer.length; i++)
-				{
-					left[i] = Math.random() * 3 - 1;
-					right[i] = Math.random() * 3 - 1;
-				}
-			convolver.buffer = noiseBuffer;
-			
-			//http://www.html5rocks.com/en/tutorials/webaudio/intro/
-			filter = audioCtx.createBiquadFilter();
-			filter.type='lowpass';
-			filter.frequency.value=filterFrequency;
-			switch(audioEffect)
-			{
+		//impulse responses from http://noisehack.com/custom-audio-effects-javascript-web-audio-api/
+		convolver = audioCtx.createConvolver();
+		var noiseBuffer =audioCtx.createBuffer(2, reverbScale * audioCtx.sampleRate, audioCtx.sampleRate);
+		var left = noiseBuffer.getChannelData(0);
+		var right = noiseBuffer.getChannelData(1);
+	
+		for (var i = 0; i < noiseBuffer.length; i++) {
+			left[i] = Math.random() * 3 - 1;
+			right[i] = Math.random() * 3 - 1;
+		}
+		convolver.buffer = noiseBuffer;
+		
+		//http://www.html5rocks.com/en/tutorials/webaudio/intro/
+		filter = audioCtx.createBiquadFilter();
+		filter.type='lowpass';
+		filter.frequency.value = filterFrequency;
+		switch(audioEffect) {
 			case "none":
 				analyserNode.connect(audioCtx.destination);
 			break;
@@ -249,57 +188,34 @@
 				analyserNode.connect(filter);
 				filter.connect(audioCtx.destination);
 			break;
-			}
-			
-			/*
-		if(reverbAudio)
-		{
-			
-			analyserNode.connect(convolver);
-			convolver.connect(audioCtx.destination);
 		}
-		else
-		{
-			//analyserNode.connect(audioCtx.destination);
-			analyserNode.connect(filter);
-			filter.connect(audioCtx.destination);
-		}
-		*/
-
-
+			
 		return analyserNode;
 	}
-	function setupUI(){
-		document.querySelector("#trackSelect").onchange = function(e)
-		{
+	function setupUI() {
+		document.querySelector("#trackSelect").onchange = function(e) {
 			playStream(audioElement,e.target.value);
 			colony.clearState();
 		};
 		
-		document.querySelector("#lineSelect").onchange = function(e)
-		{
+		document.querySelector("#lineSelect").onchange = function(e) {
 			lineStyle= e.target.value;
 		};
 		
-		document.querySelector("#lineWidthSlider").oninput = function(e)
-		{
+		document.querySelector("#lineWidthSlider").oninput = function(e) {
 			lineWidth = e.target.value;
-			//console.log(lineWidth);
 		};
 		
-		document.querySelector("#radiusSlider").oninput = function(e)
-		{
+		document.querySelector("#radiusSlider").oninput = function(e) {
 			radiusScale = e.target.value;
 		};
 		
-		document.querySelector("#lineCheck").onchange = function(e)
-		{
+		document.querySelector("#lineCheck").onchange = function(e) {
 			drawLines = e.target.checked;
 			
 		};
 		
-		document.querySelector("#circleCheck").onchange = function(e)
-		{
+		document.querySelector("#circleCheck").onchange = function(e) {
 			drawCircles = e.target.checked;
 			
 		};
@@ -308,15 +224,13 @@
 			waveFormData = e.target.checked;
 		};
 		
-		document.querySelector("#audioFilterSlider").oninput = function(e)
-		{
+		document.querySelector("#audioFilterSlider").oninput = function(e) {
 			filterFrequency = e.target.value;
 			
 			filter = audioCtx.createBiquadFilter();
 			filter.type='lowpass';
 			filter.frequency.value=filterFrequency;
-			if(audioEffect=="filter")
-			{
+			if(audioEffect=="filter") {
 				convolver.disconnect();
 				analyserNode.disconnect();
 				analyserNode.connect(filter);
@@ -324,17 +238,15 @@
 			}
 		};
 		
-		document.querySelector("#radiusSlider").oninput = function(e)
-		{
+		document.querySelector("#radiusSlider").oninput = function(e) {
 			radiusScale = e.target.value;
 		};
 
 		document.querySelector("#filterCheck").onchange = function(e) {
 			pixelFilter = e.target.checked;
-		}
+		};
 		
-		document.querySelector("#audioSelect").onchange = function(e)
-		{
+		document.querySelector("#audioSelect").onchange = function(e) {
 			audioEffect= e.target.value;
 			
 			switch(audioEffect)
@@ -363,30 +275,27 @@
 		};
 
 		
-		document.querySelector("#reverbSlider").oninput = function(e)
-		{
+		document.querySelector("#reverbSlider").oninput = function(e) {
 			reverbScale = e.target.value;
 			
 			var noiseBuffer =audioCtx.createBuffer(2, reverbScale * audioCtx.sampleRate, audioCtx.sampleRate);
 			var left = noiseBuffer.getChannelData(0);
 			var right = noiseBuffer.getChannelData(1);
 
-				for (var i = 0; i < noiseBuffer.length; i++)
-				{
-					left[i] = Math.random() * 2 - 1;
-					right[i] = Math.random() * 2 - 1;
-				}
+			for (var i = 0; i < noiseBuffer.length; i++) {
+				left[i] = Math.random() * 2 - 1;
+				right[i] = Math.random() * 2 - 1;
+			}
 			convolver.buffer = noiseBuffer;
 			
-			if(audioEffect=="reverb")
-			{
+			if(audioEffect=="reverb") {
 				analyserNode.disconnect();
 				analyserNode.connect(convolver);
 				convolver.connect(audioCtx.destination);
 			}
 		};
 	}
-	function playStream(audioElement,path){
+	function playStream(audioElement,path) {
 		audioElement.src = path;
 		audioElement.play();
 		audioElement.volume = 0.2;
@@ -394,9 +303,8 @@
 	}
 	function update() {
 		var delay = 25;
-		setTimeout(function(){
+		setTimeout(function() {
 			requestAnimationFrame(update);	
-			//Draw.ctx.clearRect(0,0,Draw.canvas.width, Draw.canvas.height);
 			Draw.ctx.fillStyle = "rgba(0,0,0,.1)"; 
 			Draw.ctx.fillRect(0,0,Draw.canvas.width ,Draw.canvas.height );
 			colony.draw(Draw.ctx, lineWidth, lineStyle, radiusScale, drawLines, drawCircles);
@@ -411,40 +319,21 @@
 			} else {		
 				analyserNode.getByteTimeDomainData(data);
 			}
-	
-			// DRAW!
-			var barWidth = Math.round(Draw.canvas.width / data.length);
-			var barSpacing = 1;
-			var barHeight = 100;
-			var topSpacing = 50;
-			
 				
 			// loop through the data and draw!
 			for(var i=0; i<NUM_SAMPLES / 4; i++) { 
 				Draw.ctx.fillStyle = 'rgba(0,255,0,0.6)'; 
 				
-				// the higher the amplitude of the sample (bin) the taller the bar
-				// remember we have to draw our bars left-to-right and top-down
-				//Draw.ctx.fillRect(i * (barWidth + barSpacing),topSpacing + 256-data[i],barWidth,barHeight); 
-				//Draw.ctx.fillRect(Draw.canvas.width - i * (barWidth + barSpacing), topSpacing + 256 - data[i] - 20, barWidth, barHeight);
 				if(data[i] > 100) {
 					colony.automota[i][Math.round(colony.ySize / 2)].nextState = Math.round(data[i] / 25);		
-					//colony.automota[i][1].nextState = Math.round(data[i] / 25);		
-					//colony.automota[i][colony.ySize - 1 ].nextState = Math.round(data[i] / 25);		
 				}
 			}
 			var extraCount = 0;
 			for(var i=NUM_SAMPLES / 2 - 1; i > NUM_SAMPLES / 4; i--) { 
 				Draw.ctx.fillStyle = 'rgba(0,255,0,0.6)'; 
 				
-				// the higher the amplitude of the sample (bin) the taller the bar
-				// remember we have to draw our bars left-to-right and top-down
-				//Draw.ctx.fillRect(i * (barWidth + barSpacing),topSpacing + 256-data[i],barWidth,barHeight); 
-				//Draw.ctx.fillRect(Draw.canvas.width - i * (barWidth + barSpacing), topSpacing + 256 - data[i] - 20, barWidth, barHeight);
 				if(data[extraCount] > 100) {
 					colony.automota[i][Math.round(colony.ySize / 2)].nextState = Math.round(data[extraCount] / 25);		
-					//colony.automota[i][1].nextState = Math.round(data[extraCount] / 25);		
-					//colony.automota[i][colony.ySize - 1 ].nextState = Math.round(data[extraCount] / 25);		
 				}
 				extraCount++;
 			}
@@ -459,12 +348,6 @@
 		var length = data.length;
 		var width = imageData.width;
 		for(var i = 0; i < length; i += 4) {
-			/*if( (data[i] || data[i + 1] || data[i + 2] > 0) && (i + 4 < length && !(data[i + 4] > 0 || data[1 + 5] > 0 || data[i + 6] > 0 ))) {
-				data[i + 4] = Math.round( data[i] / 2);
-				data[i + 5] = Math.round(data[i + 1] / 2);
-				data[i + 6] = Math.round(data[i + 2] / 2);
-				data[i + 7] = 200;
-			}*/
 			if(data[i] != 0 || data[1 + 1] != 0) {
 				data[i] = Math.round(Math.random() * data[i] * 2 );
 				data[i + 1] = 0;
@@ -476,7 +359,7 @@
 	}
 		
 		// HELPER
-	function makeColor(red, green, blue, alpha){
+	function makeColor(red, green, blue, alpha) {
    		var color='rgba('+red+','+green+','+blue+', '+alpha+')';
    		return color;
 	}

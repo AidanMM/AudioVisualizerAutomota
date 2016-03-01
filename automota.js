@@ -1,3 +1,4 @@
+!function() {
 automotaBase = {
 	currentState: 0,
 	nextState: 0,
@@ -14,7 +15,7 @@ automotaBase = {
 				living++;
 			}
 		}
-		if(this.currentState > 0)  {
+		if(this.currentState > 0) {
 			if(living < 2) {
 				this.nextState = 0;
 			}else if(living == 2 || living == 3) {
@@ -49,8 +50,7 @@ Automota = Object.assign( automotaBase, {
 		var lineStyle;
 		var drawLines=dl;
 		var drawCircles=dc;
-		if(style=="random")
-			{
+		if(style=="random") {
 				var rando = Math.floor((Math.random()*3)+1);
 				switch(rando)
 				{
@@ -67,65 +67,56 @@ Automota = Object.assign( automotaBase, {
 					break;
 				}
 			}
-			else lineStyle= style;
+			else {
+				lineStyle= style;
+			}
 		
 		ctx.save();
-		/*if(this.currentState ==  1 ) {
-			//ctx.fillStyle = "rgba(" + (10*(this.currentState - 1)) + ",0,0,1.0)";
-			if(this.yIndex < Math.round(yLength / 2)) {
-				ctx.fillStyle = "green";
-				ctx.strokeStyle = "green";
-				ctx.beginPath();
-				ctx.moveTo(Draw.canvas.width/2,0);
-				ctx.quadraticCurveTo(xPos, Draw.canvas.height / 4, xPos, yPos);
-				ctx.stroke();
-			} else {
-				ctx.fillStyle = "green";
-				ctx.strokeStyle = "blue";
-				ctx.beginPath();
-				ctx.moveTo(Draw.canvas.width/2,Draw.canvas.height);
-				ctx.lineTo(xPos, yPos);
-				ctx.stroke();
-			}
-			//ctx.fillRect(xPos, yPos, xBound / xLength, yBound / yLength);
-		} else*/
-
 		if(this.currentState >= 1) {
-				ctx.strokeStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
-				ctx.lineWidth=lineWidth;
-				if(drawLines)
-				{
-			if(this.yIndex < Math.round(yLength / 2)) {
-				ctx.fillStyle = "green";
+			ctx.strokeStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","
+				+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," 
+				+ (this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
+			ctx.lineWidth=lineWidth;
+
+			if(drawLines) {
+				if(this.yIndex < Math.round(yLength / 2)) {
+					ctx.fillStyle = "green";
+					ctx.beginPath();
+
+					if(lineStyle=="straight"){
+						 drawStraightLine(ctx, Draw.canvas.width/2, 0, xPos, yPos);
+					}
+					if(lineStyle=="quadratic"){
+						 drawQuadraticCurve(ctx, Draw.canvas.width/2, 0, xPos,Draw.canvas.height / 4 / this.currentState, xPos, yPos );
+					}
+					if(lineStyle=="cubic"){
+						 drawCubicCurve(ctx, Draw.canvas.width/2, 0, Draw.canvas.width/2, Draw.canvas.height/4, xPos, Draw.canvas.height/4/this.currentState, xPos, yPos );
+					}
+
+				} else {
+					ctx.fillStyle = "green";
+				
+					var yFlip = Draw.canvas.height -(Draw.canvas.height / 4 / this.currentState);
+					var cpYFlip = Draw.canvas.height - (Draw.canvas.height/4);
+					if(lineStyle=="straight"){ 
+						drawStraightLine(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos, yPos);
+					}
+					if(lineStyle=="quadratic"){
+						drawQuadraticCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos , yFlip ,xPos, yPos);
+					}
+					if(lineStyle=="cubic"){
+						drawCubicCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, Draw.canvas.width/2, cpYFlip, xPos, yFlip, xPos, yPos); 
+					}
+				}
+			}
+				
+			if(drawCircles) {
+				ctx.fillStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
 				ctx.beginPath();
-
-				if(lineStyle=="straight") drawStraightLine(ctx, Draw.canvas.width/2, 0, xPos, yPos);
-				if(lineStyle=="quadratic") drawQuadraticCurve(ctx, Draw.canvas.width/2, 0, xPos,Draw.canvas.height / 4 / this.currentState, xPos, yPos );
-				if(lineStyle=="cubic") drawCubicCurve(ctx, Draw.canvas.width/2, 0, Draw.canvas.width/2, Draw.canvas.height/4, xPos, Draw.canvas.height/4/this.currentState, xPos, yPos );
-
-			} else {
-				ctx.fillStyle = "green";
-				
-				var yFlip = Draw.canvas.height -(Draw.canvas.height / 4 / this.currentState);
-				var cpYFlip = Draw.canvas.height - (Draw.canvas.height/4);
-				if(lineStyle=="straight") drawStraightLine(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos, yPos);;
-				if(lineStyle=="quadratic") drawQuadraticCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos , yFlip ,xPos, yPos);
-				if(lineStyle=="cubic") drawCubicCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, Draw.canvas.width/2, cpYFlip, xPos, yFlip, xPos, yPos);
-				//drawQuadraticCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos , yFlip ,xPos, yPos);
-				}
-				
-				}
-				
-				if(drawCircles)
-				{
-					
-				
-			ctx.fillStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
-			ctx.beginPath();
-			ctx.arc(xPos, yPos, 2 * Math.min(this.currentState*radiusScale,10*radiusScale), 0, Math.PI * 2);
-			ctx.fill();
-			ctx.closePath();
-				}
+				ctx.arc(xPos, yPos, 2 * Math.min(this.currentState*radiusScale,10*radiusScale), 0, Math.PI * 2);
+				ctx.fill();
+				ctx.closePath();
+			}
 			if(this.currentState > 10) {
 				this.nextState = 0;
 				this.currentState = 0;
@@ -135,29 +126,25 @@ Automota = Object.assign( automotaBase, {
 	}
 })
 
-function drawQuadraticCurve(ctx, originX, originY, cpX, cpY, targetX, targetY)
-{
-				ctx.beginPath();
-				ctx.moveTo(originX, originY);
-				ctx.quadraticCurveTo(cpX , cpY, targetX, targetY);
-				ctx.stroke();
+function drawQuadraticCurve(ctx, originX, originY, cpX, cpY, targetX, targetY) {
+	ctx.beginPath();
+	ctx.moveTo(originX, originY);
+	ctx.quadraticCurveTo(cpX , cpY, targetX, targetY);
+	ctx.stroke();
 }
 
-function drawStraightLine(ctx, originX, originY, targetX, targetY)
-{
-				ctx.beginPath();
-				ctx.moveTo(originX,originY);
-				ctx.lineTo(targetX, targetY);
-				ctx.stroke();
+function drawStraightLine(ctx, originX, originY, targetX, targetY) {
+	ctx.beginPath();
+	ctx.moveTo(originX,originY);
+	ctx.lineTo(targetX, targetY);
+	ctx.stroke();
 }
 
-function drawCubicCurve(ctx, originX, originY, cp1X, cp1Y, cp2X, cp2Y, targetX, targetY)
-{
-				ctx.beginPath();
-				ctx.moveTo(originX, originY);
-				ctx.bezierCurveTo(cp1X, cp1Y,cp2X, cp2Y, targetX, targetY);
-				ctx.stroke();
-	
+function drawCubicCurve(ctx, originX, originY, cp1X, cp1Y, cp2X, cp2Y, targetX, targetY) {
+	ctx.beginPath();
+	ctx.moveTo(originX, originY);
+	ctx.bezierCurveTo(cp1X, cp1Y,cp2X, cp2Y, targetX, targetY);
+	ctx.stroke();
 }
 
 colonyBase = {
@@ -247,3 +234,5 @@ Object.assign( Colony, {
 		return self;
 	}
 })
+
+}()

@@ -1,3 +1,5 @@
+//I claim no rights to this code, I did not create this code.  It was given to me. I have not altered it from its original state.
+
 !function() {
 
 var XscaleFactor =0.9;
