@@ -1,37 +1,46 @@
 <html>
   <head>
+  <link href='https://fonts.googleapis.com/css?family=Orbitron:900' rel='stylesheet' type='text/css'>
     <style>
 	body {
-         background: #eeeeee;
+        background: #eeeeee;
          font-family: tahoma, verdana, sans serif;
-	 margin: 0 0 0 0;
+		
+		margin: 0 0 0 0;
+	}
+	
+	h1
+	{
+		font-family: 'Orbitron' , sans-serif;
+		text-align: center;
 	}
 
-     	canvas {
-        background: black;
-    	}
-      
-      controls{
-      	margin-left:10px;
-        margin-top:10px;
-      }
-	  canvas
-	  {
+
+	controls{
+		margin-left:10px;
+		margin-top:10px;
+	}
+	canvas
+	{
+		background: black;
 		padding-left: 0;
 		padding-right: 0;
 		margin-left: auto;
 		margin-right: auto;
 		display: block;
-	  }
+	}
 	  
 
     </style>
+	
   </head>
 
   <body>
+  <h1>Living Visualizer</h1>
     <canvas></canvas>
 	<div id="controls">
 		<audio controls loop></audio>
+		<br/>
 		<label>Track: 
 			<select id="trackSelect" >
 				<option value="media/17Years.mp3">17 Years</option>
@@ -44,24 +53,46 @@
 				<option value="media/The Picard Song.mp3">The Picard Song</option>
 			</select>
 		</label>
+		<br/>
 		<span>
 			<label for="lineCheck">Draw Lines</label>
 			<input type="checkbox" id="lineCheck" checked = "checked" >
 		</span>
+			<select id ="lineSelect">
+				<option value ="straight">Straight Lines</option>
+				<option value ="quadratic" selected>Quadratic Lines</option>
+				<option value ="cubic">Cubic Lines</option>
+				<option value = "random">Random</option>
+			</select>
+		
 		<span>
 			<label for="circleCheck">Draw Cells</label>
-			<input type="checkbox" id="circleCheck" checked = "checked" >
+			<input type="checkbox" id="circleCheck" checked >
 		</span>
-			<span>
+		
+		<span>
 			<label for="filterCheck">Pixel Filter</label>
-			<input type="checkbox" id="filterCheck" checked = "checked" >
+			<input type="checkbox" id="filterCheck" checked  >
 		</span>
-		<select id ="lineSelect">
-		<option value ="straight">Straight Lines</option>
-		<option value ="quadratic" selected>Quadratic Lines</option>
-		<option value ="cubic">Cubic Lines</option>
-		<option value = "random">Random</option>
-		</select>
+		
+		<!--
+		<span>
+			<label for="reverbCheck">Reverb</label>
+			<input type="checkbox" id="reverbCheck"   >
+		</span>
+		
+		<span>
+			<label for="audioFilterCheck">Reverb</label>
+			<input type="checkbox" id="audioFilterCheck"   >
+		</span>-->
+		
+			<select id ="audioSelect">
+				<option value ="none">No Audio Effect</option>
+				<option value ="reverb">Reverb Effect</option>
+				<option value ="filter">Lowpass Filter Effect</option>
+
+			</select>
+
 		
 		<div>
 			<label for="lineWidthSlider">Line Width</label>
@@ -71,6 +102,16 @@
 		<div>
 			<label for="radiusSlider">Cell Size</label>
 			<input id="radiusSlider" type ="range" min ="0.75" max="5.0" step ="0.1" value ="1.0"/>			
+		</div>
+		
+		<div>
+			<label for="reverbSlider">Reverb Strength</label>
+			<input id="reverbSlider" type ="range" min ="0.01" max="1.0" step ="0.05" value =".2"/>			
+		</div>
+		
+		<div>
+			<label for="audioFilterSlider">Filter Frequency</label>
+			<input id="audioFilterSlider" type ="range" min ="100" max="1000" step ="020" value ="440"/>			
 		</div>
 		
 		
@@ -122,6 +163,16 @@
 	var radiusScale = 1;
 	var drawLines=true;
 	var drawCircles=true;
+	/*
+	var reverbAudio = false;
+	var filterAudio = false;
+	*/
+	var audioEffect = "none";
+	var filter;
+	var filterFrequency = 440;
+	
+	var reverbScale = .3;
+	var audioCtx, analyserNode, sourceNode, convolver;
 	function init() {
 		// Initialize audio systems
 		audioElement = document.querySelector('audio');
@@ -134,7 +185,7 @@
 	}
 	
 	function createWebAudioContextWithAnalyserNode(audioElement) {
-		var audioCtx, analyserNode, sourceNode;
+		
 
 		// create new AudioContext
 		// The || is because WebAudio has not been standardized across browsers yet
@@ -159,43 +210,183 @@
 		// this is where we hook up the <audio> element to the analyserNode
 		sourceNode = audioCtx.createMediaElementSource(audioElement); 
 		sourceNode.connect(analyserNode);
+
+		
+			//impulse responses from http://noisehack.com/custom-audio-effects-javascript-web-audio-api/
+			convolver = audioCtx.createConvolver();
+			var noiseBuffer =audioCtx.createBuffer(2, reverbScale * audioCtx.sampleRate, audioCtx.sampleRate);
+			var left = noiseBuffer.getChannelData(0);
+			var right = noiseBuffer.getChannelData(1);
+
+				for (var i = 0; i < noiseBuffer.length; i++)
+				{
+					left[i] = Math.random() * 3 - 1;
+					right[i] = Math.random() * 3 - 1;
+				}
+			convolver.buffer = noiseBuffer;
 			
-		// here we connect to the destination i.e. speakers
-		analyserNode.connect(audioCtx.destination);
+			filter = audioCtx.createBiquadFilter();
+			filter.type='lowpass';
+			filter.frequency.value=filterFrequency;
+			switch(audioEffect)
+			{
+			case "none":
+				analyserNode.connect(audioCtx.destination);
+			break;
+			
+			case "reverb":
+				analyserNode.connect(convolver);
+				convolver.connect(audioCtx.destination);
+			break;
+			
+			case "filter":
+				analyserNode.connect(filter);
+				filter.connect(audioCtx.destination);
+			break;
+			}
+			
+			/*
+		if(reverbAudio)
+		{
+			
+			analyserNode.connect(convolver);
+			convolver.connect(audioCtx.destination);
+		}
+		else
+		{
+			//analyserNode.connect(audioCtx.destination);
+			analyserNode.connect(filter);
+			filter.connect(audioCtx.destination);
+		}
+		*/
+
+
 		return analyserNode;
 	}
 	function setupUI(){
-		document.querySelector("#trackSelect").onchange = function(e){
+		document.querySelector("#trackSelect").onchange = function(e)
+		{
 			playStream(audioElement,e.target.value);
 			colony.clearState();
 		};
+		
 		document.querySelector("#lineSelect").onchange = function(e)
 		{
 			lineStyle= e.target.value;
-		}
+		};
+		
 		document.querySelector("#lineWidthSlider").oninput = function(e)
 		{
 			lineWidth = e.target.value;
 			//console.log(lineWidth);
-		}
+		};
+		
 		document.querySelector("#radiusSlider").oninput = function(e)
 		{
 			radiusScale = e.target.value;
-		}
+		};
+		
 		document.querySelector("#lineCheck").onchange = function(e)
 		{
 			drawLines=e.target.checked;
 			
-		}
+		};
+		
 		document.querySelector("#circleCheck").onchange = function(e)
 		{
 			drawCircles=e.target.checked;
 			
-		}
-		document.querySelector("#filterCheck").onchange = function(e)
-		{
+		};
 		
-		}
+		document.querySelector("#audioFilterSlider").oninput = function(e)
+		{
+			filterFrequency = e.target.value;
+			
+			filter = audioCtx.createBiquadFilter();
+			filter.type='lowpass';
+			filter.frequency.value=filterFrequency;
+			if(audioEffect=="filter")
+			{
+				convolver.disconnect();
+				analyserNode.disconnect();
+				analyserNode.connect(filter);
+				filter.connect(audioCtx.destination);
+			}
+		};
+		
+		document.querySelector("#radiusSlider").oninput = function(e)
+		{
+			radiusScale = e.target.value;
+		};
+		
+		document.querySelector("#audioSelect").onchange = function(e)
+		{
+			audioEffect= e.target.value;
+			
+			switch(audioEffect)
+			{
+			case "none":
+				convolver.disconnect();
+				filter.disconnect();
+				analyserNode.disconnect();
+				analyserNode.connect(audioCtx.destination);
+			break;
+			
+			case "reverb":
+				filter.disconnect();
+				analyserNode.disconnect();
+				analyserNode.connect(convolver);
+				convolver.connect(audioCtx.destination);
+			break;
+			
+			case "filter":
+				convolver.disconnect();
+				analyserNode.disconnect();
+				analyserNode.connect(filter);
+				filter.connect(audioCtx.destination);
+			break;
+			}
+		};
+		/*
+		document.querySelector("#reverbCheck").onchange = function(e)
+		{
+			reverbAudio=e.target.checked;
+			if(reverbAudio)
+			{
+				analyserNode.disconnect();
+				analyserNode.connect(convolver);
+				convolver.connect(audioCtx.destination);
+			}
+			else
+			{
+				convolver.disconnect();
+				analyserNode.connect(audioCtx.destination);
+			}
+
+		};*/
+		
+		document.querySelector("#reverbSlider").oninput = function(e)
+		{
+			reverbScale = e.target.value;
+			
+			var noiseBuffer =audioCtx.createBuffer(2, reverbScale * audioCtx.sampleRate, audioCtx.sampleRate);
+			var left = noiseBuffer.getChannelData(0);
+			var right = noiseBuffer.getChannelData(1);
+
+				for (var i = 0; i < noiseBuffer.length; i++)
+				{
+					left[i] = Math.random() * 2 - 1;
+					right[i] = Math.random() * 2 - 1;
+				}
+			convolver.buffer = noiseBuffer;
+			
+			if(audioEffect=="reverb")
+			{
+				analyserNode.disconnect();
+				analyserNode.connect(convolver);
+				convolver.connect(audioCtx.destination);
+			}
+		};
 	}
 	function playStream(audioElement,path){
 		audioElement.src = path;
