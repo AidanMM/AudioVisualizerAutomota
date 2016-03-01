@@ -42,6 +42,7 @@ Automota = Object.assign( automotaBase, {
 	draw: function(ctx, xBound, yBound, xLength, yLength) {
 		var xPos = xBound / xLength * this.xIndex;
 		var yPos = yBound / yLength * this.yIndex;
+		var lineStyle = "straight";
 		ctx.save();
 		/*if(this.currentState ==  1 ) {
 			//ctx.fillStyle = "rgba(" + (10*(this.currentState - 1)) + ",0,0,1.0)";
@@ -61,21 +62,37 @@ Automota = Object.assign( automotaBase, {
 				ctx.stroke();
 			}
 			//ctx.fillRect(xPos, yPos, xBound / xLength, yBound / yLength);
-		} else*/ if(this.currentState >= 1) {
+		} else*/
+
+		if(this.currentState >= 1) {
 				ctx.strokeStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
 			
 			if(this.yIndex < Math.round(yLength / 2)) {
 				ctx.fillStyle = "green";
 				ctx.beginPath();
+				/*
 				ctx.moveTo(Draw.canvas.width/2,0);
 				ctx.quadraticCurveTo(xPos , Draw.canvas.height / 4 / this.currentState, xPos, yPos);
 				ctx.stroke();
+				*/
+				if(lineStyle=="straight") drawStraightLine(ctx, Draw.canvas.width/2, 0, xPos, yPos);
+				if(lineStyle=="quadratic")	drawQuadraticCurve(ctx, Draw.canvas.width/2, 0, xPos,Draw.canvas.height / 4 / this.currentState, xPos, yPos );
+
 			} else {
 				ctx.fillStyle = "green";
+				/*
 				ctx.beginPath();
 				ctx.moveTo(Draw.canvas.width/2,Draw.canvas.height);
 				ctx.lineTo(xPos, yPos);
-				ctx.stroke();
+				ctx.stroke();*/
+				
+				//drawStraightLine(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos, yPos);
+				
+				var yFlip = Draw.canvas.height -(Draw.canvas.height / 4 / this.currentState);
+				if(lineStyle=="straight")drawStraightLine(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos, yPos);;
+				if(lineStyle=="quadratic")drawQuadraticCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos , yFlip ,xPos, yPos);
+				
+				//drawQuadraticCurve(ctx, Draw.canvas.width/2, Draw.canvas.height, xPos , yFlip ,xPos, yPos);
 			}
 			ctx.fillStyle = "rgba(" + ( 255 - this.xIndex - 10*(this.currentState - 1)) + ","+ (Math.max(0, this.yIndex - this.xIndex) - this.currentState * 3)  + "," +(this.xIndex - 10*(this.currentState - 1)) + ",1.0)";
 			ctx.beginPath();
@@ -91,6 +108,22 @@ Automota = Object.assign( automotaBase, {
 	}
 })
 
+function drawQuadraticCurve(ctx, originX, originY, cpX, cpY, targetX, targetY)
+{
+				ctx.beginPath();
+				//ctx.moveTo(Draw.canvas.width/2,0);
+				ctx.moveTo(originX, originY);
+				ctx.quadraticCurveTo(cpX , cpY, targetX, targetY);
+				ctx.stroke();
+}
+
+function drawStraightLine(ctx, originX, originY, targetX, targetY)
+{
+				ctx.beginPath();
+				ctx.moveTo(originX,originY);
+				ctx.lineTo(targetX, targetY);
+				ctx.stroke();
+}
 
 colonyBase = {
 	automota: [],
