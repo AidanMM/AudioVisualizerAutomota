@@ -15,6 +15,15 @@
       	margin-left:10px;
         margin-top:10px;
       }
+	  canvas
+	  {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+	  }
+	  
 
     </style>
   </head>
@@ -37,21 +46,56 @@
 		</label>
 		<span>
 			<label for="lineCheck">Draw Lines</label>
-			<input type="checkbox" id="lineCheck">
+			<input type="checkbox" id="lineCheck" checked = "checked" >
+		</span>
+		<span>
+			<label for="circleCheck">Draw Cells</label>
+			<input type="checkbox" id="circleCheck" checked = "checked" >
+		</span>
+			<span>
+			<label for="filterCheck">Pixel Filter</label>
+			<input type="checkbox" id="filterCheck" checked = "checked" >
 		</span>
 		<select id ="lineSelect">
-		<option value ="linear">Straight Lines</option>
+		<option value ="straight">Straight Lines</option>
 		<option value ="quadratic" selected>Quadratic Lines</option>
 		<option value ="cubic">Cubic Lines</option>
+		<option value = "random">Random</option>
 		</select>
 		
 		<div>
-			<label for="controlPointSlider">Curviness</label>
-			<input id="controlPointSlider" type ="range" min ="0.1" max="1.0" step ="0.1" value ="0.5"/>
-			<span style="float:right" id="sliderResults">???</span>
+			<label for="lineWidthSlider">Line Width</label>
+			<input id="lineWidthSlider" type ="range" min ="0.1" max="5.0" step ="0.1" value ="1.0"/>			
 		</div>
+		
+		<div>
+			<label for="radiusSlider">Cell Size</label>
+			<input id="radiusSlider" type ="range" min ="0.75" max="5.0" step ="0.1" value ="1.0"/>			
+		</div>
+		
+		
 		<p id="status">???</p>
 	</div>
+	
+	<!--
+	<fieldset>
+<legend>HTML File Upload</legend>
+
+<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
+
+
+<div>
+	<label for="fileselect">Files to upload:</label>
+	<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+	<div id="filedrag">or drop files here</div>
+</div>
+
+<div id="submitbutton">
+	<button type="submit">Upload Files</button>
+</div>
+
+</fieldset>
+-->
   </body>
   
   <script src='setup.js'></script>
@@ -73,6 +117,11 @@
 	var SOUND_8 = 'media/Lamprey.mp3';
 	var audioElement;
 	var analyserNode;
+	var lineStyle="quadratic";
+	var lineWidth = 1;
+	var radiusScale = 1;
+	var drawLines=true;
+	var drawCircles=true;
 	function init() {
 		// Initialize audio systems
 		audioElement = document.querySelector('audio');
@@ -83,6 +132,7 @@
 		//colony.randomizeState();
 		update();
 	}
+	
 	function createWebAudioContextWithAnalyserNode(audioElement) {
 		var audioCtx, analyserNode, sourceNode;
 
@@ -119,6 +169,33 @@
 			playStream(audioElement,e.target.value);
 			colony.clearState();
 		};
+		document.querySelector("#lineSelect").onchange = function(e)
+		{
+			lineStyle= e.target.value;
+		}
+		document.querySelector("#lineWidthSlider").oninput = function(e)
+		{
+			lineWidth = e.target.value;
+			//console.log(lineWidth);
+		}
+		document.querySelector("#radiusSlider").oninput = function(e)
+		{
+			radiusScale = e.target.value;
+		}
+		document.querySelector("#lineCheck").onchange = function(e)
+		{
+			drawLines=e.target.checked;
+			
+		}
+		document.querySelector("#circleCheck").onchange = function(e)
+		{
+			drawCircles=e.target.checked;
+			
+		}
+		document.querySelector("#filterCheck").onchange = function(e)
+		{
+		
+		}
 	}
 	function playStream(audioElement,path){
 		audioElement.src = path;
@@ -133,7 +210,7 @@
 			//Draw.ctx.clearRect(0,0,Draw.canvas.width, Draw.canvas.height);
 			Draw.ctx.fillStyle = "rgba(0,0,0,.1)"; 
 			Draw.ctx.fillRect(0,0,Draw.canvas.width ,Draw.canvas.height );
-			colony.draw(Draw.ctx);
+			colony.draw(Draw.ctx, lineWidth, lineStyle, radiusScale, drawLines, drawCircles);
 			colony.update();
 			// create a new array of 8-bit integers (0-255)
 			var data = new Uint8Array(NUM_SAMPLES); 

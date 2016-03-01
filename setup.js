@@ -1,5 +1,7 @@
 !function() {
 
+var XscaleFactor =0.9;
+var YscaleFactor = 0.8;
 
 /*
  * Draw: object to manage window resizing and canvas creation. 
@@ -9,8 +11,12 @@
 window.Draw = {
   canvas:  document.querySelector( 'canvas' ),
   ctx:     null,     
+  /*
   width:   window.innerWidth,
-  height:  window.innerHeight,
+  height:  window.innerHeight,*/
+  
+  width:   window.innerWidth*XscaleFactor,
+  height:  window.innerHeight*YscaleFactor,
   
   init: function() {
     this.ctx = this.canvas.getContext( '2d' )
@@ -25,8 +31,8 @@ window.Draw = {
   },
 
   resize: function() {
-    Draw.width  = window.innerWidth,
-    Draw.height = window.innerHeight
+    Draw.width  = window.innerWidth*XscaleFactor,
+    Draw.height = window.innerHeight*YscaleFactor
  
     Draw.canvas.setAttribute( 'width',  Draw.width  )
     Draw.canvas.setAttribute( 'height', Draw.height )
